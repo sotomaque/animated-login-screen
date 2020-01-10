@@ -3,9 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
-
 import MusicApp from './app/index';
-
 function cacheImages(images) {
   return images.map(image => {
     if (typeof image === 'string') {
@@ -15,13 +13,12 @@ function cacheImages(images) {
     }
   });
 }
-
 export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
       isReady: false
-    }
+    };
   }
 
   async _loadAssetsAsync() {
@@ -40,18 +37,14 @@ export default class App extends React.Component {
         />
       );
     }
-
-    return (
-      <MusicApp />
-    );
+    return <MusicApp />;
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 });
