@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, TextInput } from 'react-native';
 
 import Animated, { Easing } from 'react-native-reanimated';
 import { TapGestureHandler, State } from 'react-native-gesture-handler';
@@ -19,7 +19,8 @@ const {
   timing,
   clockRunning,
   interpolate,
-  Extrapolate
+  Extrapolate,
+  concat
 } = Animated;
 
 function runTiming(clock, value, dest) {
@@ -68,6 +69,18 @@ class MusicApp extends Component {
       }
     ]);
 
+    this.onCloseState = event([
+      {
+        nativeEvent: ({ state }) =>
+          block([
+            cond(
+              eq(state, State.END),
+              set(this.buttonOpacity, runTiming(new Clock(), 0, 1))
+            )
+          ])
+      }
+    ]);
+
     this.buttonY = interpolate(this.buttonOpacity, {
       inputRange: [0, 1],
       outputRange: [100, 0],
@@ -79,6 +92,30 @@ class MusicApp extends Component {
       outputRange: [-height / 3, 0],
       extrapolate: Extrapolate.CLAMP
     });
+
+    this.textInputZindex = interpolate(this.buttonOpacity, {
+        inputRange: [0, 1],
+        outputRange: [1 , -1],
+        extrapolate: Extrapolate.CLAMP
+    });
+
+    this.textInputY = interpolate(this.buttonOpacity, {
+        inputRange: [0, 1],
+        outputRange: [0, 100],
+        extrapolate: Extrapolate.CLAMP
+    });
+
+    this.textInputOpacity = interpolate(this.buttonOpacity, {
+        inputRange: [0, 1],
+        outputRange: [1, 0],
+        extrapolate: Extrapolate.CLAMP
+    });
+
+    this.rotateX = interpolate(this.buttonOpacity, {
+      inputRange: [0, 1],
+      outputRange: [180, 360],
+      extrapolate: Extrapolate.CLAMP
+  });
   }
   render() {
     return (
@@ -124,6 +161,37 @@ class MusicApp extends Component {
               SIGN IN WITH FACEBOOK
             </Text>
           </Animated.View>
+          <Animated.View 
+            style={{
+                zIndex: this.textInputZindex, 
+                opacity: this.textInputOpacity, 
+                transform: [{translateY: this.textInputY}], 
+                height: height/3, 
+                ...StyleSheet.absoluteFill, 
+                top: null, 
+                justifyContent: 'center'}}>
+            <TapGestureHandler onHandlerStateChange={this.onCloseState}>
+                <Animated.View style={styles.closeButton}>
+                    <Animated.Text style={{fontSize: 20, transform: [{rotate: concat(this.rotateX, 'deg')}]}}>X</Animated.Text>
+                </Animated.View>
+            </TapGestureHandler>
+
+            <TextInput 
+                placeholder="EMAIL"
+                style={styles.textInput}
+                placeholderTextColor="black"
+            />
+            <TextInput 
+                placeholder="PASSWORD"
+                style={styles.textInput}
+                placeholderTextColor="black"
+            />
+            
+            <Animated.View style={styles.button}>
+              <Text style={{fontSize: 20, fontWeight: 'bold' }}>SIGNIN</Text>
+            </Animated.View>
+
+          </Animated.View>
         </View>
       </View>
     );
@@ -144,6 +212,34 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 5
+    marginVertical: 5,
+    shadowOffset: { width: 2, height: 2 },
+    shadowColor: 'black',
+    shadowOpacity: 0.2,
+    elevation: 3,
+  },
+  textInput: {
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 0.5,
+    marginHorizontal: 20,
+    paddingLeft: 10, 
+    marginVertical: 5,
+    borderColor: 'rgba(0,0,0,0.2)'
+  }, 
+  closeButton: {
+    height: 40, 
+    width: 40,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: -20,
+    left: width / 2 - 20,
+    shadowOffset: { width: 2, height: 2 },
+    shadowColor: 'black',
+    shadowOpacity: 0.5,
+    elevation: 3,
   }
 });
